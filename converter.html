@@ -1,0 +1,114 @@
+<html>
+<header>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+</header>
+<h1>논문을 편하게 읽자</h1>
+<form>
+    <label for="pointEnter">엔터 적용</label>
+    <input type="checkbox" name="pointEnter" id="pointEnter" checked="checked">
+    <label for="autoCopy">자동 복사</label>
+    <input type="checkbox" name="autoCopy" id="autoCopy" checked="checked">
+    <textarea style="width: 100%; height: 40%;" name="val" id="val">
+
+    </textarea>
+    <textarea style="width: 100%; height: 40%;" name="result" id="result" readonly>
+
+    </textarea>
+    <button type="button"
+            style="height: 50px;width: 50%;background-color: lightskyblue;"
+            onclick="convert();">convert!
+    </button>
+    <!--    <button type="button" onclick="copy();">복사</button>-->
+</form>
+<script>
+    $(document).keyup(function (event) {
+        // if (event.which === 13) {
+        //     convert();
+        // }
+    });
+
+    const specialTextFIG = "홍종찬";
+    const specialTextEG = "꼬꼬닭";
+    const specialTextIE = "도로롱";
+    const specialTextNodeJs = "노드";
+    const specialTextPoint = "포인트";
+
+    const exceptList = {
+        specialTextEG: ["e.g."],
+        specialTextFIG: ["Fig.", "Figs.", "Fig.."],
+        specialTextIE: ["i.e.","i.e"],
+        specialTextNodeJs: ["node.js"],
+    };
+
+    function revertConversion(text) {
+        for (const key in exceptList) {
+            const convertedArray = exceptList[key];
+            converter = converter.replaceAll(key, convertedArray[0])
+        }
+        converter = converter.replaceAll(specialTextPoint, ".")
+        return converter;
+    }
+
+    function getCommonText(text) {
+        converter = converter.replaceAll(/\n/g, ' ').replaceAll('  ', '');
+        if (pointEnterChecked()) {
+            converter = convertPointEnter(converter);
+        }
+        return converter
+    }
+
+    function getConversionExceptText(text) {
+        decimalNumberList = findDecimalNumbers(converter);
+        for (const match of decimalNumberList) {
+            converter = converter.replaceAll(match, match.replace('.', specialTextPoint))
+        }
+        for (const key in exceptList) {
+            const convertedArray = exceptList[key];
+            for (const originalText of convertedArray) {
+                converter = converter.replaceAll(originalText, key)
+            }
+        }
+        return getCommonText(converter);
+    }
+
+    function autoCopyChecked() {
+        return $("#autoCopy").is(":checked") === true;
+    }
+
+    function pointEnterChecked() {
+        return $("#pointEnter").is(":checked") === true;
+    }
+
+    function convertPointEnter(text) {
+        return converter.replace(/\./g, '.\n\n');
+    }
+
+    function findDecimalNumbers(text) {
+        const pattern = /\d+\.\d+/g;
+        matches = converter.match(pattern);
+        return matches || [];
+    }
+
+    function convert() {
+        var text = $("#val").val();
+        converter = getConversionExceptText(converter);
+        converter = revertConversion(converter);
+        $("#result").val(converter);
+        if (autoCopyChecked()) {
+            copy();
+        }
+    }
+
+    function copy() {
+        const el = document.createElement(`textarea`)
+        el.value = $("#result").val();
+        el.setAttribute(`readonly`, ``)
+        document.body.appendChild(el)
+        el.select()
+        document.execCommand(`copy`)
+        document.body.removeChild(el)
+
+    }
+
+</script>
+</html>
