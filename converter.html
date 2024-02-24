@@ -43,32 +43,32 @@
     function revertConversion(text) {
         for (const key in exceptList) {
             const convertedArray = exceptList[key];
-            converter = converter.replaceAll(key, convertedArray[0])
+            text = text.replaceAll(key, convertedArray[0])
         }
-        converter = converter.replaceAll(specialTextPoint, ".")
-        return converter;
+        text = text.replaceAll(specialTextPoint, ".")
+        return text;
     }
 
     function getCommonText(text) {
-        converter = converter.replaceAll(/\n/g, ' ').replaceAll('  ', '');
+        text = text.replaceAll(/\n/g, ' ').replaceAll('  ', '');
         if (pointEnterChecked()) {
-            converter = convertPointEnter(converter);
+            text = convertPointEnter(text);
         }
-        return converter
+        return text
     }
 
     function getConversionExceptText(text) {
-        decimalNumberList = findDecimalNumbers(converter);
+        decimalNumberList = findDecimalNumbers(text);
         for (const match of decimalNumberList) {
-            converter = converter.replaceAll(match, match.replace('.', specialTextPoint))
+            text = text.replaceAll(match, match.replace('.', specialTextPoint))
         }
         for (const key in exceptList) {
             const convertedArray = exceptList[key];
             for (const originalText of convertedArray) {
-                converter = converter.replaceAll(originalText, key)
+                text = text.replaceAll(originalText, key)
             }
         }
-        return getCommonText(converter);
+        return getCommonText(text);
     }
 
     function autoCopyChecked() {
@@ -80,20 +80,20 @@
     }
 
     function convertPointEnter(text) {
-        return converter.replace(/\./g, '.\n\n');
+        return text.replace(/\./g, '.\n\n');
     }
 
     function findDecimalNumbers(text) {
         const pattern = /\d+\.\d+/g;
-        matches = converter.match(pattern);
+        matches = text.match(pattern);
         return matches || [];
     }
 
     function convert() {
         var text = $("#val").val();
-        converter = getConversionExceptText(converter);
-        converter = revertConversion(converter);
-        $("#result").val(converter);
+        text = getConversionExceptText(text);
+        text = revertConversion(text);
+        $("#result").val(text);
         if (autoCopyChecked()) {
             copy();
         }
